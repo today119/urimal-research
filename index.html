@@ -116,8 +116,8 @@ textarea{min-height:84px; resize:vertical}
   font-family:'Gowun Dodum',sans-serif; font-size:16px; line-height:1.75}
 .paper h1{font-family:'Jua'; font-weight:normal; font-size:27px; text-align:center; margin:0 0 4px}
 .paper .who{text-align:center; color:#666; margin-bottom:20px}
-.paper h2{font-family:'Jua'; font-weight:normal; font-size:20px; margin:20px 0 6px; padding-bottom:4px; border-bottom:2px solid #ece6f8}
-.paper h3{font-family:'Jua'; font-weight:normal; font-size:17px; margin:12px 0 4px}
+.paper h2{break-after:avoid; font-family:'Jua'; font-weight:normal; font-size:20px; margin:20px 0 6px; padding-bottom:4px; border-bottom:2px solid #ece6f8}
+.paper h3{break-after:avoid; font-family:'Jua'; font-weight:normal; font-size:17px; margin:12px 0 4px}
 .paper p{margin:4px 0; white-space:pre-wrap}
 .paper .empty{color:#c0b9d0}
 .paper .bar{font-size:15px; grid-template-columns:minmax(70px,28%) 1fr 84px; margin:4px 0}
@@ -347,22 +347,23 @@ function bars(q){
       <div class="val">${o.c}명 (${p}%)</div></div>`;
   }).join('')}</div>`;
 }
-function autoSentence(q){
-  const t=sum(q); if(!t) return '아직 답이 없어요.';
+function autoSentence(q,da){
+  const t=sum(q); if(!t) return da?'':'아직 답이 없어요.';
+  const E=da?{a:'가장 많았다.',b:'이다.',c:'골랐다.'}:{a:'가장 많았어요.',b:'이에요.',c:'골랐어요.'};
   const sorted=q.opts.map((o,j)=>({...o,j})).sort((a,b)=>b.c-a.c);
   const top=sorted[0], ties=sorted.filter(o=>o.c===top.c);
   const nm=o=>`'${o.t||('보기 '+(o.j+1))}'`;
   let s=`<b>${t}명</b>에게 물어보았더니, `;
-  if(ties.length>1) s+=`${ties.map(nm).join(', ')}가 <b>${top.c}명씩</b> 똑같이 가장 많았어요.`;
+  if(ties.length>1) s+=`${ties.map(nm).join(', ')}가 <b>${top.c}명씩</b> 똑같이 ${E.a}`;
   else{
-    s+=`${nm(top)}라고 답한 사람이 <b>${top.c}명(${Math.round(top.c/t*100)}%)</b>으로 가장 많았어요.`;
+    s+=`${nm(top)}라고 답한 사람이 <b>${top.c}명(${Math.round(top.c/t*100)}%)</b>으로 ${E.a}`;
     const low=sorted[sorted.length-1];
-    if(sorted.length>1 && low.c<top.c) s+=` 가장 적은 답은 ${nm(low)}(${low.c}명)이에요.`;
+    if(sorted.length>1 && low.c<top.c) s+=` 가장 적은 답은 ${nm(low)}(${low.c}명)${E.b}`;
   }
-  if(top.c*2>t) s+=` 절반이 넘는 사람이 ${nm(top)}를 골랐어요.`;
+  if(top.c*2>t) s+=` 절반이 넘는 사람이 ${nm(top)}를 ${E.c}`;
   return s;
 }
-function plainSentence(q){ return autoSentence(q).replace(/<[^>]+>/g,''); }
+function plainSentence(q){ return autoSentence(q,true).replace(/<[^>]+>/g,''); }
 
 /* ───────── 3. 면담 ───────── */
 const IVQ_EX=[
